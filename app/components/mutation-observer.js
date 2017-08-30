@@ -1,0 +1,1 @@
+export { default } from 'ember-cli-dom-observer/components/mutation-observer';

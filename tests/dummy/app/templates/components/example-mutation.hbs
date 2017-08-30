@@ -1,0 +1,23 @@
+{{#mutation-observer
+  handleMutations=(action "handleMutations")
+  attributes=true
+  childList=true
+  characterData=true
+  subtree=true
+  attributeFilter='["the","one"]'
+}}
+  <ol contenteditable>
+    <li>Click here and press enter</li>
+  </ol>
+{{/mutation-observer}}
+
+<p>
+  Each time an item is changed in the ordered list above the mutator observer captures the event<br/>
+  and adds the item to an array which is displayed below as an unordered list<br/>
+</p>
+
+<ul>
+  {{#each itemList as |item|}}
+    <li>{{item}}</li>
+  {{/each}}
+</ul>
