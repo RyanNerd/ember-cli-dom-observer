@@ -1,6 +1,6 @@
 {
   "name": "ember-cli-dom-observer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Implementation of MutationObserver / DOM Mutation Observers as an Ember component.",
   "keywords": [
     "ember-addon",
@@ -15,8 +15,7 @@
     "doc": "doc",
     "test": "tests"
   },
-  "repository":
-  {
+  "repository": {
     "type": "git",
     "url": "https://github.com/RyanNerd/ember-cli-dom-observer"
   },
