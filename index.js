@@ -6,7 +6,7 @@ const LINE2 = ' | _ \\_  _ __ _ _ _ | \\| |___ _ _ __| |';
 const LINE3 = ' |   / || / _` | \' \\| .` / -_) \'_/ _` |';
 const LINE4 = ' |_|_\\\\_, \\__,_|_||_|_|\\_\\___|_| \\__,_|';
 const LINE5 = '      |__/                             ';
-const LINE6 ='https://github.com/RyanNerd/ember-cli-mutation-observer';
+const LINE6 ='https://github.com/RyanNerd/ember-cli-dom-observer';
 
 module.exports = {
   name: 'ember-cli-dom-observer',

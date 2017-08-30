@@ -33,7 +33,7 @@ Further information on MutationObserver can be found in these excellent blog pos
  
 ## Addon Installation
 
-* `ember install ember-cli-mutation-observer`
+* `ember install ember-cli-dom-observer`
 
 ## Requirements
 * Ember 2.14 
@@ -89,7 +89,7 @@ when any changes (e.g. new `<LI>` node was added) to the ordered list occur.
 
 ## Installation
 
-* `git clone https://github.com/RyanNerd/ember-cli-mutation-observer.git` 
+* `git clone https://github.com/RyanNerd/ember-cli-dom-observer.git` 
 * `npm install` or `yarn install`
 
 ## Running Example
@@ -99,8 +99,8 @@ when any changes (e.g. new `<LI>` node was added) to the ordered list occur.
 
 ## Installation
 
-* `git clone https://github.com/RyanNerd/ember-cli-mutation-observer`
-* `cd ember-cli-mutation-observer`
+* `git clone https://github.com/RyanNerd/ember-cli-dom-observer`
+* `cd ember-cli-dom-observer`
 * `npm install`
 
 ## TODO
