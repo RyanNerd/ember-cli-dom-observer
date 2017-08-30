@@ -18,7 +18,7 @@
   "repository":
   {
     "type": "git",
-    "url": "https://github.com/RyanNerd/ember-cli-mutation-observer"
+    "url": "https://github.com/RyanNerd/ember-cli-dom-observer"
   },
   "scripts": {
     "build": "ember build",
