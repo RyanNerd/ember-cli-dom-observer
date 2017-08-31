@@ -1,10 +1,28 @@
+<p>Try stretching the textarea element past 300px</p>
+
 {{#mutation-observer
   handleMutations=(action "handleMutations")
   attributes=true
+  childList=false
+  characterData=false
+  subtree=false
+  attributeFilter='["style"]'
+}}
+  <textarea style="width: 200px;"></textarea>
+{{/mutation-observer}}
+
+<p>textarea <b>width:</b> {{width}}</p>
+<p>textarea <b>style attribute</b>: {{styleAttribute}}</p>
+
+<hr>
+
+<p>Ordered List example</p>
+{{#mutation-observer
+  handleMutations=(action "handleMutations")
+  attributes=false
   childList=true
   characterData=true
   subtree=true
-  attributeFilter='["the","one"]'
 }}
   <ol contenteditable>
     <li>Click here and press enter</li>

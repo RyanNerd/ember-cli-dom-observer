@@ -43,7 +43,7 @@ Further information on MutationObserver can be found in these excellent blog pos
 * Only works with [modern web browsers](http://caniuse.com/#search=mutationobserver)
   - Chrome 49+
   - Edge 14+
-  - Firefox 52+
+  - Firefox 52+ [*setting attributes in an obsever callback hangs FF](https://jsfiddle.net/RyanNerd/60xw1mbd/6/)
   - IE 11
   - Opera 46+
   - Safari 10.1+
@@ -75,8 +75,9 @@ Further information on MutationObserver can be found in these excellent blog pos
      * MutationObserver triggered events action handler
      * 
      * @param {MutationRecord[]} mutationRecords The triggered mutation records
+     * @param {MutationObserver} observer
      */
-    handleMutations(mutationRecords) {
+    handleMutations(mutationRecords, observer) {
       // Do something with mutation records
     }
   }
@@ -105,4 +106,7 @@ when any changes (e.g. new `<LI>` node was added) to the ordered list occur.
 
 ## TODO
 * Add property to indicate a target element via element id.
+* Create docs.
+* Wrap logic in try...catch providing better feedback with errors.
 * Create meaningful unit tests.
+ 

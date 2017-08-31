@@ -1,6 +1,8 @@
 import Ember from 'ember';
 import layout from '../templates/components/mutation-observer';
 
+const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+
 export default Ember.Component.extend(
 {
   layout: layout,
@@ -49,26 +51,22 @@ export default Ember.Component.extend(
 
   /**
    * @protected
-   * @property MutationObserver | null
+   * @property MutationObserver
    */
   _mutationObserver: null,
 
   /**
-   * Component constructor
+   * Set up a new MutationObserver instance and establish a callback action for DOM change events.
    */
   init()
   {
     this._super(...arguments);
 
-    // Get the MutationObserver class.
-    let MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-
-    //Instantiate a MutationObserver object and apply the mutation handler as an action.
     let self = this;
-    this._mutationObserver = new MutationObserver(mutations =>
+    this.set('_mutationObserver', new MutationObserver(function(mutations, observer)
     {
-      self.send('handleMutations', mutations);
-    });
+      self.send('handleMutations', mutations, observer);
+    }));
   },
 
   /**
@@ -76,7 +74,7 @@ export default Ember.Component.extend(
    */
   didInsertElement()
   {
-    // Get this component DIV element.
+    // Get this components DIV element.
     let elementId = this.get('elementId');
     let ownElement = document.getElementById(elementId);
 
@@ -85,28 +83,32 @@ export default Ember.Component.extend(
 
     // Do we have a child element?
     if (firstChild) {
-      // Special handling for the attributeFilter property
-      let attributeFilterArray = [];
-      let attributeFilter = this.get('attributeFilter');
-
-      // Is the attributeFilter specified?
-      if (attributeFilter && attributeFilter.length !== 0) {
-        // Is it a string? If so then treat it as a JSON array string.
-        if (Ember.typeOf(attributeFilter) === 'string') {
-          attributeFilterArray = JSON.parse(attributeFilter);
-        }
-      }
+      // Special handling is needed if attributes property is true.
+      let attributesFlag = this.get('attributes');
 
       // Get the configuration properties as set by our component.
       let config = {
         childList: this.get('childList'),
-        attributes: this.get('attributes'),
+        attributes: attributesFlag,
         characterData: this.get('characterData'),
         subtree: this.get('subtree'),
         attributeOldValue: this.get('attributeOldValue'),
         characterDataOldValue: this.get('characterDataOldValue'),
-        attributeFilter: attributeFilterArray
       };
+
+      // Special handling for the attributeFilter property is needed if this.attributes === true
+      if (attributesFlag) {
+        let attributeFilter = this.get('attributeFilter');
+
+        // Is the attributeFilter specified?
+        if (attributeFilter && attributeFilter.length !== 0) {
+          // Is it a string? If so then treat it as a JSON array string.
+          if (Ember.typeOf(attributeFilter) === 'string') {
+            config.attributeFilter = JSON.parse(attributeFilter);
+          }
+        }
+        Ember.assert('Invalid attributeFilter', !Ember.isEmpty(config.attributeFilter));
+      }
 
       /**
        * Validate the configuration object.
@@ -128,8 +130,9 @@ export default Ember.Component.extend(
    */
   willDestroy()
   {
-    if (this._mutationObserver !== null) {
-      this._mutationObserver.disconnect();
+    let mutationObserver = this.get('_mutationObserver');
+    if (mutationObserver !== null) {
+      mutationObserver.disconnect();
     }
     this.set('_mutationObserver', null);
   },
@@ -138,11 +141,13 @@ export default Ember.Component.extend(
   {
     /**
      * Action delegate called to handle mutation events
-     * @param mutations
+     *
+     * @param {MutationRecord[]} mutations
+     * @param {MutationObserver} observer
      */
-    handleMutations(mutations)
+    handleMutations(mutations, observer)
     {
-      this.sendAction('handleMutations', mutations);
+      this.sendAction('handleMutations', mutations, observer);
     }
   }
 });
