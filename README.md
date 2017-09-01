@@ -2,6 +2,8 @@
 
 Implementation of [MutationObserver](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) / [DOM Mutation Observers](http://dom.spec.whatwg.org/#mutation-observers) as an Ember component.
 
+Detailed [Documentation](https://github.com/RyanNerd/ember-cli-dom-observer/wiki/Documentation)
+
 Uses
 ----
 * Browser extensions - You've created a [browser extension in Ember](https://www.youtube.com/watch?v=NtkpDL2yKGo) and 
@@ -140,9 +142,3 @@ targetId="btn"}}
 * `git clone https://github.com/RyanNerd/ember-cli-dom-observer`
 * `cd ember-cli-dom-observer`
 * `npm install`
-
-## TODO
-* Create docs.
-* Wrap logic in try...catch providing better feedback with errors.
-* Create meaningful unit tests.
- 
