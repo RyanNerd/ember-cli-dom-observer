@@ -18,6 +18,8 @@ export default Ember.Component.extend(
      */
     handleMutations(mutations, observer)
     {
+      let isFF = navigator.userAgent.search("Firefox") > -1;
+
       let self = this;
       mutations.forEach(function (mutation) {
         // Is the change to the element is a change in the observed attribute?
@@ -35,6 +37,9 @@ export default Ember.Component.extend(
           // Is the width of the element is less than 250px and the backgroundColor is blue?
           if (width <= 250 && target.style.backgroundColor === "blue") {
             target.style.backgroundColor = "";
+            if (isFF) {
+              observer.takeRecords();
+            }
           }
 
           // Is the width of element more than 250px?
@@ -44,19 +49,23 @@ export default Ember.Component.extend(
              * MutationObserver callback Firefox will hang.
              *
              * @see https://jsfiddle.net/RyanNerd/60xw1mbd/6/ - for a non-Ember demonstration of this FF bug.
+             *
+             * Workaround for FF hanging is to empty the queued observer events via takeRecords()
              */
-            if (navigator.userAgent.search("Firefox") > -1) {
-              alert('Firefox hangs if we change attributes while in a mutation handler. So we MUST disconnect from the observer.');
-              observer.disconnect();
-            }
-
-            target.style.backgroundColor = "blue";
+              target.style.backgroundColor = "blue";
+              if (isFF) {
+                observer.takeRecords();
+              }
           }
 
           // If the width of the element is more than 300 then prevent the user from increasing the width.
           if (width > 300) {
             target.style.width = "300px";
+            if (isFF) {
+              observer.takeRecords();
+            }
           }
+          return;
         }
 
         // Is the observed element change of the childList type?
