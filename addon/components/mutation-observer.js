@@ -76,11 +76,15 @@ export default Ember.Component.extend(
   {
     this._super(...arguments);
 
-    let self = this;
-    this.set('_mutationObserver', new MutationObserver(function(mutations, observer)
-    {
-      self.send('handleMutations', mutations, observer);
-    }));
+    try {
+      let self = this;
+      this.set('_mutationObserver', new MutationObserver(function(mutations, observer)
+      {
+        self.send('handleMutations', mutations, observer);
+      }));
+    } catch(e) {
+      Ember.assert('mutation-observer: ' + e.message, false);
+    }
   },
 
   /**
@@ -149,7 +153,11 @@ export default Ember.Component.extend(
       // Are the config properties valid?
       if (isValidConfig) {
         // Hook the child element to the mutation observer.
-        this._mutationObserver.observe(firstChild, config);
+        try {
+          this._mutationObserver.observe(firstChild, config);
+        } catch(e) {
+          Ember.assert('mutation-observer: ' + e.message, false);
+        }
       }
     }
   },
@@ -159,11 +167,15 @@ export default Ember.Component.extend(
    */
   willDestroy()
   {
-    let mutationObserver = this.get('_mutationObserver');
-    if (mutationObserver !== null) {
-      mutationObserver.disconnect();
+    try {
+      let mutationObserver = this.get('_mutationObserver');
+      if (mutationObserver !== null) {
+        mutationObserver.disconnect();
+      }
+      this.set('_mutationObserver', null);
+    } catch(e) {
+      Ember.assert('mutation-observer: ' + e.message, false);
     }
-    this.set('_mutationObserver', null);
   },
 
   actions:
