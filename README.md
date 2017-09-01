@@ -43,7 +43,7 @@ Further information on MutationObserver can be found in these excellent blog pos
 * Only works with [modern web browsers](http://caniuse.com/#search=mutationobserver)
   - Chrome 49+
   - Edge 14+
-  - Firefox 52+ [*setting attributes in an obsever callback hangs FF](https://jsfiddle.net/RyanNerd/60xw1mbd/6/)
+  - Firefox 52+
   - IE 11
   - Opera 46+
   - Safari 10.1+
