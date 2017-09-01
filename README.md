@@ -115,6 +115,7 @@ targetId="btn"}}
   actions: 
   {
     handleMutations(mutations, observer) {
+      let self=this;
       mutations.forEach(function (mutation) 
       {
         if (mutation.type === 'characterData') {
