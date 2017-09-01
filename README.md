@@ -67,7 +67,7 @@ Further information on MutationObserver can be found in these excellent blog pos
 {{/mutation-observer}}
 ```
 
-```ecmascript 6
+```javascript
   import Ember from 'ember';
   export default Ember.Component.extend({
 
@@ -106,7 +106,7 @@ targetId="btn"}}
 <p>Button Text: {{buttonText}}</p>
 ```
 
-```ecmascript 6
+```javascript
   import Ember from 'ember';
   export default Ember.Component.extend(
 {
