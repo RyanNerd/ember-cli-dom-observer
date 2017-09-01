@@ -7,6 +7,7 @@ export default Ember.Component.extend(
 
   width: null,
   styleAttribute: null,
+  buttonText: null,
 
   actions:
   {
@@ -81,6 +82,10 @@ export default Ember.Component.extend(
           if (list.length !== 0 && list[0] !== '(empty)') {
             self.set('itemList', list);
           }
+        }
+
+        if (mutation.type === 'characterData') {
+          self.set('buttonText', mutation.target.textContent);
         }
       });
     }

@@ -88,12 +88,49 @@ In the example above [MutationRecords](https://developer.mozilla.org/en-US/docs/
 will be sent to the handleMutations() action function
 when any changes (e.g. new `<LI>` node was added) to the ordered list occur.
 
+The component can also be used as a standalone component using the targetId property
+to indicate the element to be observed as in the example below.
+
+```handlebars
+{{mutation-observer
+handleMutations=(action "handleMutations")
+attributes=false
+childList=false
+characterData=true
+subtree=true
+targetId="btn"}}
+
+<button id="btn" contenteditable="true">Click Here to Change Button Text</button>
+<p>Button Text: {{buttonText}}</p>
+```
+
+```ecmascript 6
+  import Ember from 'ember';
+  export default Ember.Component.extend(
+{
+  buttonText: null,
+
+  actions: 
+  {
+    handleMutations(mutations, observer) {
+      mutations.forEach(function (mutation) 
+      {
+        if (mutation.type === 'characterData') {
+          self.set('buttonText', mutation.target.textContent);
+          observer.takeRecords(); // Empty the mutation queue.
+        }
+      });
+    }
+  }
+})
+```
+
 ## Installation
 
 * `git clone https://github.com/RyanNerd/ember-cli-dom-observer.git` 
 * `npm install` or `yarn install`
 
-## Running Example
+## Running Examples
 
 * `ember server`
 * Go to http://localhost:4200 in your web browser.
@@ -105,7 +142,6 @@ when any changes (e.g. new `<LI>` node was added) to the ordered list occur.
 * `npm install`
 
 ## TODO
-* Add property to indicate a target element via element id.
 * Create docs.
 * Wrap logic in try...catch providing better feedback with errors.
 * Create meaningful unit tests.

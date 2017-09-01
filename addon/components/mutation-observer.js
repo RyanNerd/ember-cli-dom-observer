@@ -9,45 +9,59 @@ export default Ember.Component.extend(
 
   /**
    * Set to true if additions and removals of the target node's child elements (including text nodes) are to be observed.
-   * @property bool
+   * @public
+   * @property {boolean}
    */
   childList: false,
 
   /**
    * Set to true if mutations to target's attributes are to be observed.
-   * @property bool
+   * @public
+   * @property {boolean}
    */
   attributes: false,
 
   /**
    * Set to true if mutations to target's data are to be observed.
-   * @property bool
+   * @public
+   * @property {boolean}
    */
   characterData: false,
 
   /**
    * Set to true if mutations to target and target's descendants are to be observed.
-   * @property: bool
+   * @public
+   * @property: {boolean}
    */
   subtree: false,
 
   /**
    * Set to true if attributes is set to true and target's attribute value before the mutation needs to be recorded.
-   * @property bool
+   * @public
+   * @property {boolean}
    */
   attributeOldValue: false,
 
   /**
    * Set to true if characterData is set to true and target's data before the mutation needs to be recorded.
-   * @property bool
+   * @public
+   * @property {boolean}
    */
   characterDataOldValue: false,
 
   /**
    * Set to an array of attribute local names (without namespace) if not all attribute mutations need to be observed.
-   * @property JSON.string - passed in as a JSON string (e.g. '["one","two"]')
+   * @public
+   * @property {string} - JSON array as a string (e.g. '["disabled","style"]')
    */
   attributeFilter: [],
+
+  /**
+   * Set this to the id of the element that should be observed.
+   * @public
+   * @property {string | null}
+   */
+  targetId: null,
 
   /**
    * @protected
@@ -74,14 +88,28 @@ export default Ember.Component.extend(
    */
   didInsertElement()
   {
-    // Get this components DIV element.
-    let elementId = this.get('elementId');
-    let ownElement = document.getElementById(elementId);
+    /**
+     * @type {Node}
+     * @description The target element to be observed.
+     */
+    let firstChild;
 
-    // Get the first child element in the component.
-    let firstChild = ownElement.firstElementChild;
+    // If a targetId is indicated then use this to find the element to observe,
+    // otherwise use the first element contained in this component.
+    let targetId = this.get('targetId');
+    if (!Ember.isEmpty(targetId)) {
+      firstChild = document.getElementById(targetId);
+    } else {
+      // Get this components DIV element.
+      let ownElement = document.getElementById(this.get('elementId'));
 
-    // Do we have a child element?
+      // Get the first child element contained in the component.
+      firstChild = ownElement.firstElementChild;
+    }
+
+    Ember.assert('mutation-observer: Unable to find target element', !Ember.isEmpty(firstChild));
+
+    // Do we have a target element?
     if (firstChild) {
       // Special handling is needed if attributes property is true.
       let attributesFlag = this.get('attributes');
@@ -96,7 +124,7 @@ export default Ember.Component.extend(
         characterDataOldValue: this.get('characterDataOldValue'),
       };
 
-      // Special handling for the attributeFilter property is needed if this.attributes === true
+      // Special handling for the attributeFilter property is needed if this.attributes is true
       if (attributesFlag) {
         let attributeFilter = this.get('attributeFilter');
 
@@ -107,7 +135,7 @@ export default Ember.Component.extend(
             config.attributeFilter = JSON.parse(attributeFilter);
           }
         }
-        Ember.assert('Invalid attributeFilter', !Ember.isEmpty(config.attributeFilter));
+        Ember.assert('mutation-observer: Invalid attributeFilter. Must be a string formatted as a JSON array.', !Ember.isEmpty(config.attributeFilter));
       }
 
       /**
@@ -115,7 +143,7 @@ export default Ember.Component.extend(
        * @see https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
        */
       let isValidConfig = config.childList || config.attributes || config.characterData;
-      Ember.assert('At the very least, childList, attributes, or characterData must be set to true.', isValidConfig);
+      Ember.assert('mutation-observer: At the very least, childList, attributes, or characterData must be set to true.', isValidConfig);
 
       // Are the config properties valid?
       if (isValidConfig) {

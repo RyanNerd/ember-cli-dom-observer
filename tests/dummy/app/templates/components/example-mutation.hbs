@@ -39,3 +39,16 @@
     <li>{{item}}</li>
   {{/each}}
 </ul>
+
+<hr>
+
+{{mutation-observer
+handleMutations=(action "handleMutations")
+attributes=false
+childList=false
+characterData=true
+subtree=true
+targetId="btn"}}
+
+<button id="btn" contenteditable="true">Click Here to Change Button Text</button>
+<p>Button Text: {{buttonText}}</p>
