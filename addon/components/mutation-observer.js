@@ -8,7 +8,7 @@ export default Ember.Component.extend(
   layout: layout,
 
   /**
-   * Set to true if additions and removals of the target node's child elements (including text nodes) are to be observed.
+   * Set to true if additions and removals of the target node's child elements are to be observed.
    * @public
    * @property {boolean}
    */
@@ -54,7 +54,7 @@ export default Ember.Component.extend(
    * @public
    * @property {string} - JSON array as a string (e.g. '["disabled","style"]')
    */
-  attributeFilter: [],
+  attributeFilter: null,
 
   /**
    * Set this to the id of the element that should be observed.
@@ -107,7 +107,7 @@ export default Ember.Component.extend(
       firstChild = ownElement.firstElementChild;
     }
 
-    Ember.assert('mutation-observer: Unable to find target element', !Ember.isEmpty(firstChild));
+    Ember.assert('mutation-observer: Unable to find target element.', !Ember.isEmpty(firstChild));
 
     // Do we have a target element?
     if (firstChild) {
@@ -129,21 +129,22 @@ export default Ember.Component.extend(
         let attributeFilter = this.get('attributeFilter');
 
         // Is the attributeFilter specified?
-        if (attributeFilter && attributeFilter.length !== 0) {
+        if (attributeFilter !== null) {
           // Is it a string? If so then treat it as a JSON array string.
           if (Ember.typeOf(attributeFilter) === 'string') {
             config.attributeFilter = JSON.parse(attributeFilter);
           }
+          Ember.assert('mutation-observer: Invalid attributeFilter property value.',
+            Ember.typeOf(config.attributeFilter) === 'array' && attributeFilter.length > 0);
         }
-        Ember.assert('mutation-observer: Invalid attributeFilter. Must be a string formatted as a JSON array.', !Ember.isEmpty(config.attributeFilter));
       }
 
       /**
        * Validate the configuration object.
-       * @see https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
        */
       let isValidConfig = config.childList || config.attributes || config.characterData;
-      Ember.assert('mutation-observer: At the very least, childList, attributes, or characterData must be set to true.', isValidConfig);
+      Ember.assert('mutation-observer: At the very least, childList, attributes, or characterData must be set to true.',
+        isValidConfig);
 
       // Are the config properties valid?
       if (isValidConfig) {
