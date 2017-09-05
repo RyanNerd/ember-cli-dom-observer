@@ -19,8 +19,6 @@ export default Ember.Component.extend(
      */
     handleMutations(mutations, observer)
     {
-      let isFF = navigator.userAgent.search("Firefox") > -1;
-
       let self = this;
       mutations.forEach(function (mutation) {
         // Is the change to the element is a change in the observed attribute?
@@ -38,9 +36,10 @@ export default Ember.Component.extend(
           // Is the width of the element is less than 250px and the backgroundColor is blue?
           if (width <= 250 && target.style.backgroundColor === "blue") {
             target.style.backgroundColor = "";
-            if (isFF) {
-              observer.takeRecords();
-            }
+
+            // Throw away queued mutation records to prevent recursion (only a problem in Firefox) but best practice
+            // when changing attributes in the call back function that is observing changes to attributes.
+            observer.takeRecords();
           }
 
           // Is the width of element more than 250px?
@@ -54,17 +53,19 @@ export default Ember.Component.extend(
              * Workaround for FF hanging is to empty the queued observer events via takeRecords()
              */
               target.style.backgroundColor = "blue";
-              if (isFF) {
-                observer.takeRecords();
-              }
+
+              // Throw away queued mutation records to prevent recursion (only a problem in Firefox) but best practice
+              // when changing attributes in the call back function that is observing changes to attributes.
+              observer.takeRecords();
           }
 
           // If the width of the element is more than 300 then prevent the user from increasing the width.
           if (width > 300) {
             target.style.width = "300px";
-            if (isFF) {
-              observer.takeRecords();
-            }
+
+            // Throw away queued mutation records to prevent recursion (only a problem in Firefox) but best practice
+            // when changing attributes in the call back function that is observing changes to attributes.
+            observer.takeRecords();
           }
           return;
         }
@@ -84,7 +85,32 @@ export default Ember.Component.extend(
           }
         }
 
+        /* Sharing the same mutationHandler action between elements is BAD PRACTICE -- the code below illustrates this.
         if (mutation.type === 'characterData') {
+          // Because we are using the same action function for all observers we need to figure out
+          // which element we are dealing with and if it is the button element then we update the buttonText.
+          // mutation.target is a Node which is not necessarily an Element. Better to use a separate action for
+          // each observed element. This code shows the WRONG WAY.
+          let node = mutation.target.parentElement;
+          if (node !== null && node.nodeType === 1 && node.id === 'btn') {
+            self.set('buttonText', mutation.target.textContent);
+          }
+        }
+        */
+      });
+    },
+
+    /**
+     * Handle mutation changes to the button element.
+     * @param {MutationRecord[]} mutations
+     * @param [{MutationObserver}] observer
+     */
+    handleMutationsBtn(mutations)
+    {
+      let self = this;
+      mutations.forEach(function (mutation) {
+        if (mutation.type === 'characterData')
+        {
           self.set('buttonText', mutation.target.textContent);
         }
       });

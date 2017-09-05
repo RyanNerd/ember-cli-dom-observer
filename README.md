@@ -128,6 +128,12 @@ targetId="btn"}}
 })
 ```
 
+IMPORTANT NOTE: It is possible to have more than one observed element (multiple mutation-observer components) on a page
+and have each observed element use the same `mutationHandler` action 
+it however **is not** best practice to do so. 
+Each element you wrap in a component or set the targetId property should have an individual `mutationHandler` action.
+See the code in tests/dummy/app/components/example-mutation.js for an examples.
+
 ## Installation
 
 * `git clone https://github.com/RyanNerd/ember-cli-dom-observer.git` 
@@ -137,9 +143,3 @@ targetId="btn"}}
 
 * `ember server`
 * Go to http://localhost:4200 in your web browser.
-
-## Installation
-
-* `git clone https://github.com/RyanNerd/ember-cli-dom-observer`
-* `cd ember-cli-dom-observer`
-* `npm install`

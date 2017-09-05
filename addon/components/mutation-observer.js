@@ -1,6 +1,11 @@
 import Ember from 'ember';
 import layout from '../templates/components/mutation-observer';
 
+/**
+ * @constant
+ * @type {MutationObserver}
+ * @default
+ */
 const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
 
 export default Ember.Component.extend(
@@ -31,7 +36,7 @@ export default Ember.Component.extend(
   /**
    * Set to true if mutations to target and target's descendants are to be observed.
    * @public
-   * @property: {boolean}
+   * @property {boolean}
    */
   subtree: false,
 
@@ -52,7 +57,7 @@ export default Ember.Component.extend(
   /**
    * Set to an array of attribute local names (without namespace) if not all attribute mutations need to be observed.
    * @public
-   * @property {string} - JSON array as a string (e.g. '["disabled","style"]')
+   * @property {string | null} - JSON array as a string (e.g. '["disabled","style"]')
    */
   attributeFilter: null,
 
@@ -65,12 +70,19 @@ export default Ember.Component.extend(
 
   /**
    * @protected
-   * @property MutationObserver
+   * @property {MutationObserver}
    */
   _mutationObserver: null,
 
   /**
+   * @protected
+   * @property {Element}
+   */
+  _targetElement: null,
+
+  /**
    * Set up a new MutationObserver instance and establish a callback action for DOM change events.
+   * @throws {Ember.assert}
    */
   init()
   {
@@ -78,9 +90,14 @@ export default Ember.Component.extend(
 
     try {
       let self = this;
-      this.set('_mutationObserver', new MutationObserver(function(mutations, observer)
+
+      /**
+       * @param {MutationRecord[]} mutations
+       * @callback this.actions.handleMutations()
+       */
+      this.set('_mutationObserver', new MutationObserver(function(mutations)
       {
-        self.send('handleMutations', mutations, observer);
+        self.send('handleMutations', mutations, self.get('_mutationObserver'));
       }));
     } catch(e) {
       Ember.assert('mutation-observer: ' + e.message, false);
@@ -89,36 +106,56 @@ export default Ember.Component.extend(
 
   /**
    * Fires when component is injected into the DOM.
+   * @throws {Ember.assert}
    */
   didInsertElement()
   {
     /**
-     * @type {Node}
+     * @type {Element}
      * @description The target element to be observed.
      */
-    let firstChild;
+    let targetElement;
 
-    // If a targetId is indicated then use this to find the element to observe,
-    // otherwise use the first element contained in this component.
+    /**
+     * If a targetId is indicated then use this to find the element to observe,
+     * otherwise use the first element contained in this component.
+     * @type {string | null} - The element Id of the target or null if not specified.
+     */
     let targetId = this.get('targetId');
     if (!Ember.isEmpty(targetId)) {
-      firstChild = document.getElementById(targetId);
+      targetElement = document.getElementById(targetId);
     } else {
-      // Get this components DIV element.
+      /**
+       * Get this components DIV element.
+       * @type {Element}
+       */
       let ownElement = document.getElementById(this.get('elementId'));
 
       // Get the first child element contained in the component.
-      firstChild = ownElement.firstElementChild;
+      targetElement = ownElement.firstElementChild;
     }
 
-    Ember.assert('mutation-observer: Unable to find target element.', !Ember.isEmpty(firstChild));
+    Ember.assert('mutation-observer: Unable to find target element.', !Ember.isEmpty(targetElement));
 
     // Do we have a target element?
-    if (firstChild) {
-      // Special handling is needed if attributes property is true.
+    if (targetElement && targetElement.nodeType === 1) {
+      /**
+       * Cache the attributes property.
+       * @type {boolean}
+       */
       let attributesFlag = this.get('attributes');
 
-      // Get the configuration properties as set by our component.
+      /**
+       * Set the configuration object as indicated by the properties of the component.
+       * @typedef {object} config
+       * @property {boolean} childList
+       * @property {boolean} attributes
+       * @property {boolean} characterData
+       * @property {boolean} subtree
+       * @property {boolean} attributeOldValue
+       * @property {boolean} characterDataOldValue
+       * @property {string[]} attributeFilter
+       */
       let config = {
         childList: this.get('childList'),
         attributes: attributesFlag,
@@ -130,6 +167,10 @@ export default Ember.Component.extend(
 
       // Special handling for the attributeFilter property is needed if this.attributes is true
       if (attributesFlag) {
+        /**
+         * Get the attributeFilter property.
+         * @type {string | null}
+         */
         let attributeFilter = this.get('attributeFilter');
 
         // Is the attributeFilter specified?
@@ -138,15 +179,19 @@ export default Ember.Component.extend(
           if (Ember.typeOf(attributeFilter) === 'string') {
             config.attributeFilter = JSON.parse(attributeFilter);
           }
+
           Ember.assert('mutation-observer: Invalid attributeFilter property value.',
             Ember.typeOf(config.attributeFilter) === 'array' && attributeFilter.length > 0);
+
         }
       }
 
       /**
        * Validate the configuration object.
+       * @type {boolean}
        */
       let isValidConfig = config.childList || config.attributes || config.characterData;
+
       Ember.assert('mutation-observer: At the very least, childList, attributes, or characterData must be set to true.',
         isValidConfig);
 
@@ -154,7 +199,7 @@ export default Ember.Component.extend(
       if (isValidConfig) {
         // Hook the child element to the mutation observer.
         try {
-          this._mutationObserver.observe(firstChild, config);
+          this.get('_mutationObserver').observe(targetElement, config);
         } catch(e) {
           Ember.assert('mutation-observer: ' + e.message, false);
         }
@@ -163,15 +208,24 @@ export default Ember.Component.extend(
   },
 
   /**
-   * If we have an existing mutationObserver object then disconnect any observers.
+   * Fires before this component is removed from the DOM.
+   * @throws {Ember.assert}
    */
   willDestroy()
   {
     try {
+      /**
+       * @type {MutationObserver | null}
+       */
       let mutationObserver = this.get('_mutationObserver');
+
+      // Is the Mutation Observer object set for this component?
       if (mutationObserver !== null) {
+        // stop observing mutations.
         mutationObserver.disconnect();
       }
+
+      // Release the Mutation Observer instance.
       this.set('_mutationObserver', null);
     } catch(e) {
       Ember.assert('mutation-observer: ' + e.message, false);
@@ -181,13 +235,14 @@ export default Ember.Component.extend(
   actions:
   {
     /**
-     * Action delegate called to handle mutation events
-     *
+     * Action delegate called to handle mutation events.
+     * @callback
      * @param {MutationRecord[]} mutations
      * @param {MutationObserver} observer
      */
     handleMutations(mutations, observer)
     {
+      // Bubble the action up.
       this.sendAction('handleMutations', mutations, observer);
     }
   }
