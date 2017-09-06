@@ -1,4 +1,6 @@
-import Ember from 'ember';
+import { isEmpty, typeOf } from '@ember/utils';
+import { warn, assert } from '@ember/debug';
+import Component from '@ember/component';
 import layout from '../templates/components/mutation-observer';
 
 /**
@@ -8,7 +10,7 @@ import layout from '../templates/components/mutation-observer';
  */
 const MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
 
-export default Ember.Component.extend(
+export default Component.extend(
 {
   layout: layout,
 
@@ -82,7 +84,6 @@ export default Ember.Component.extend(
 
   /**
    * Set up a new MutationObserver instance and establish a callback action for DOM change events.
-   * @throws {Ember.assert}
    */
   init()
   {
@@ -100,13 +101,12 @@ export default Ember.Component.extend(
         self.send('handleMutations', mutations, self.get('_mutationObserver'));
       }));
     } catch(e) {
-      Ember.assert('mutation-observer: ' + e.message, false);
+      warn('mutation-observer: ' + e.message);
     }
   },
 
   /**
    * Fires when component is injected into the DOM.
-   * @throws {Ember.assert}
    */
   didInsertElement()
   {
@@ -122,7 +122,7 @@ export default Ember.Component.extend(
      * @type {string | null} - The element Id of the target or null if not specified.
      */
     let targetId = this.get('targetId');
-    if (!Ember.isEmpty(targetId)) {
+    if (!isEmpty(targetId)) {
       targetElement = document.getElementById(targetId);
     } else {
       /**
@@ -135,7 +135,7 @@ export default Ember.Component.extend(
       targetElement = ownElement.firstElementChild;
     }
 
-    Ember.assert('mutation-observer: Unable to find target element.', !Ember.isEmpty(targetElement));
+    warn('mutation-observer: Unable to find target element.', !isEmpty(targetElement));
 
     // Do we have a target element?
     if (targetElement && targetElement.nodeType === 1) {
@@ -176,12 +176,12 @@ export default Ember.Component.extend(
         // Is the attributeFilter specified?
         if (attributeFilter !== null) {
           // Is it a string? If so then treat it as a JSON array string.
-          if (Ember.typeOf(attributeFilter) === 'string') {
+          if (typeOf(attributeFilter) === 'string') {
             config.attributeFilter = JSON.parse(attributeFilter);
           }
 
-          Ember.assert('mutation-observer: Invalid attributeFilter property value.',
-            Ember.typeOf(config.attributeFilter) === 'array' && attributeFilter.length > 0);
+          assert('mutation-observer: Invalid attributeFilter property value.',
+            typeOf(config.attributeFilter) === 'array' && attributeFilter.length > 0);
 
         }
       }
@@ -192,7 +192,7 @@ export default Ember.Component.extend(
        */
       let isValidConfig = config.childList || config.attributes || config.characterData;
 
-      Ember.assert('mutation-observer: At the very least, childList, attributes, or characterData must be set to true.',
+      assert('mutation-observer: At the very least, childList, attributes, or characterData must be set to true.',
         isValidConfig);
 
       // Are the config properties valid?
@@ -201,7 +201,7 @@ export default Ember.Component.extend(
         try {
           this.get('_mutationObserver').observe(targetElement, config);
         } catch(e) {
-          Ember.assert('mutation-observer: ' + e.message, false);
+          assert('mutation-observer: ' + e.message, false);
         }
       }
     }
@@ -209,7 +209,6 @@ export default Ember.Component.extend(
 
   /**
    * Fires before this component is removed from the DOM.
-   * @throws {Ember.assert}
    */
   willDestroy()
   {
@@ -228,7 +227,7 @@ export default Ember.Component.extend(
       // Release the Mutation Observer instance.
       this.set('_mutationObserver', null);
     } catch(e) {
-      Ember.assert('mutation-observer: ' + e.message, false);
+      warn('mutation-observer: ' + e.message);
     }
   },
 
