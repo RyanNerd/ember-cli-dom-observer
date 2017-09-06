@@ -12,8 +12,10 @@
   "license": "MIT",
   "author": "Ryan Jentzsch <ryan.jentzsch@gmail.com>",
   "directories": {
-    "doc": "doc",
-    "test": "tests"
+    "addon": "addon",
+    "app": "app",
+    "test": "tests",
+    "dummy": "tests/dummy"
   },
   "repository": {
     "type": "git",
