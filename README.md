@@ -38,7 +38,7 @@ Further information on MutationObserver can be found in these excellent blog pos
 * `ember install ember-cli-dom-observer`
 
 ## Requirements
-* Ember 2.14 
+* Ember 2.15 
   - Older Ember 2.x versions may work but this component has not been used/tested with previous versions.
   - If you are using Ember 1.x or your version of Ember does not work with this component
     then use [this](https://github.com/topaxi/ember-mutation-observer) Addon instead.
@@ -90,7 +90,7 @@ In the example above [MutationRecords](https://developer.mozilla.org/en-US/docs/
 will be sent to the handleMutations() action function
 when any changes (e.g. new `<LI>` node was added) to the ordered list occur.
 
-The component can also be used as a standalone component using the targetId property
+This Addon can also be used as a standalone component by using the targetId property
 to indicate the element to be observed as in the example below.
 
 ```handlebars
@@ -128,11 +128,14 @@ targetId="btn"}}
 })
 ```
 
-IMPORTANT NOTE: It is possible to have more than one observed element (multiple mutation-observer components) on a page
-and have each observed element use the same `mutationHandler` action 
-it however **is not** best practice to do so. 
-Each element you wrap in a component or set the targetId property should have an individual `mutationHandler` action.
-See the code in tests/dummy/app/components/example-mutation.js for an examples.
+**IMPORTANT NOTE**: It is possible to have more than one observed element (multiple mutation-observer components) on a 
+page and have each observed element use the same `mutationHandler` action.
+ 
+However this is **not** best practice,
+and can cause [recursion issues](https://bugzilla.mozilla.org/show_bug.cgi?id=1395767).
+
+Each element you wrap in a component or set as the targetId should have an individual `mutationHandler` action.
+See the code in `tests/dummy/app/components/example-mutation.js` for an examples of best practice and bad practice.
 
 ## Installation
 
