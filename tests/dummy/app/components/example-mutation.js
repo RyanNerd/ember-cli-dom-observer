@@ -1,7 +1,8 @@
-import Ember from 'ember';
+import { isBlank } from '@ember/utils';
+import Component from '@ember/component';
 import layout from '../templates/components/example-mutation';
 
-export default Ember.Component.extend(
+export default Component.extend(
 {
   layout: layout,
 
@@ -13,6 +14,9 @@ export default Ember.Component.extend(
   {
     /**
      * MutationObserver callback handler
+     * We use the same handleMutations() action for both the textarea and ordered list elements.
+     * This is bad practice and is done this way only to show it is possible.
+     * The README and wiki docs note that this is bad practice.
      *
      * @param {MutationRecord[]} mutations
      * @param {MutationObserver} observer
@@ -76,7 +80,7 @@ export default Ember.Component.extend(
           let target = mutation.target;
           let list = [].slice.call(target.children).map(function (node)
           {
-            return (Ember.isBlank(node.innerHTML)) ? '(empty)' : node.innerHTML;
+            return (isBlank(node.innerHTML)) ? '(empty)' : node.innerHTML;
           });
 
           // If the change is not an "empty" node then set the itemList[] property so that handlebars can display it.
